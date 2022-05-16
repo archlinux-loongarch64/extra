@@ -1,0 +1,82 @@
+# Maintainer: Evangelos Foutras <evangelos@foutrelis.com>
+
+pkgname=('geoip-database' 'geoip-database-extra')
+pkgver=20220315
+pkgrel=1
+arch=('any')
+url="https://mailfud.org/geoip-legacy/"
+license=('CCPL:by-sa')
+makedepends=('util-linux')
+checkdepends=('geoip')
+_source_base=https://sources.archlinux.org/other/packages/$pkgname/$pkgver
+source=(GeoIP-$pkgver.dat.gz::$_source_base/GeoIP.dat.gz
+        GeoIPv6-$pkgver.dat.gz::$_source_base/GeoIPv6.dat.gz
+        GeoIPCity-$pkgver.dat.gz::$_source_base/GeoIPCity.dat.gz
+        GeoIPCityv6-$pkgver.dat.gz::$_source_base/GeoIPCityv6.dat.gz
+        GeoIPASNum-$pkgver.dat.gz::$_source_base/GeoIPASNum.dat.gz
+        GeoIPASNumv6-$pkgver.dat.gz::$_source_base/GeoIPASNumv6.dat.gz)
+sha256sums=('d78c267f2439838ff8a8ece9452602f80704e8210ca86cad6dca7eac97f08f6d'
+            '931b5746c894885ec463d0bdb23063d88a83a471c49132336fb8a073ace4e331'
+            '68c0272d5f8ea957730679f81aa545e2ed035ad9cb53862b8287da36447f198d'
+            '94e4d8ad82ed19ef994aff5dee72224a8cbb6b99ba357e7cc19679b0ef6db057'
+            '7561d1d74a2d79445f5bf640ae1dcf030d428b0b805c0be171958f85db8277d9'
+            '8fe59696a63061147bc36903e6a7c106659fba88b4d7611c86ab50217ed2faa2')
+
+prepare() {
+  cd "$srcdir"
+  rename -v -- "-$pkgver" '' *.dat
+}
+
+check() {
+  cd "$srcdir"
+
+  if [[ $(geoiplookup -f GeoIP.dat 8.8.8.8) != *'US, United States' ]]; then
+    echo >&2 'Unable to resolve IPv4 address to country.'
+    return 1
+  fi
+
+  if [[ $(geoiplookup6 -f GeoIPv6.dat 2001:4860:4860::8888) != *'US, United States' ]]; then
+    echo >&2 'Unable to resolve IPv6 address to country.'
+    return 1
+  fi
+
+  if [[ $(geoiplookup -f GeoIPCity.dat 8.8.8.8) != *'US, 00, N/A, N/A'* ]]; then
+    echo >&2 'Unable to resolve IPv4 address to city.'
+    return 1
+  fi
+
+  if [[ $(geoiplookup6 -f GeoIPCityv6.dat 2001:4860:4860::8888) != *'US, 00, N/A, N/A'* ]]; then
+    echo >&2 'Unable to resolve IPv6 address to city.'
+    return 1
+  fi
+
+  if [[ $(geoiplookup -f GeoIPASNum.dat 8.8.8.8) != *'AS15169 GOOGLE' ]]; then
+    echo >&2 'Unable to resolve IPv4 address to ASN.'
+    return 1
+  fi
+
+  if [[ $(geoiplookup6 -f GeoIPASNumv6.dat 2001:4860:4860::8888) != *'AS15169 GOOGLE' ]]; then
+    echo >&2 'Unable to resolve IPv6 address to ASN.'
+    return 1
+  fi
+}
+
+package_geoip-database() {
+  pkgdesc="GeoIP legacy country database (based on GeoLite2 data created by MaxMind)"
+
+  cd "$srcdir"
+
+  install -d "$pkgdir/usr/share/GeoIP"
+  install -m644 -t "$pkgdir/usr/share/GeoIP" GeoIP{,v6}.dat
+}
+
+package_geoip-database-extra() {
+  pkgdesc="GeoIP legacy city/ASN databases (based on GeoLite2 data created by MaxMind)"
+
+  cd "$srcdir"
+
+  install -d "$pkgdir/usr/share/GeoIP"
+  install -m644 -t "$pkgdir/usr/share/GeoIP" GeoIPCity{,v6}.dat GeoIPASNum{,v6}.dat
+}
+
+# vim:set ts=2 sw=2 et:

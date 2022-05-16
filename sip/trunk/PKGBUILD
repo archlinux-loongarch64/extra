@@ -1,0 +1,23 @@
+# Maintainer: Antonio Rojas <arojas@archlinux.org>
+
+pkgname=sip
+pkgver=6.6.1
+pkgrel=2
+arch=(x86_64)
+pkgdesc='A tool that makes it easy to create Python bindings for C and C++ libraries'
+url='https://www.riverbankcomputing.com/software/sip/intro'
+license=('custom:"sip"')
+depends=(python-toml python-packaging python-setuptools python-ply)
+source=(https://pypi.python.org/packages/source/s/sip/$pkgname-$pkgver.tar.gz)
+sha256sums=('696c575c72144122701171f2cc767fe6cc87050ea755a04909152a8508ae10c3')
+options=(debug)
+
+build() {
+  cd $pkgname-$pkgver
+  python setup.py build
+}
+
+package() {
+  cd $pkgname-$pkgver
+  python setup.py install --skip-build --root="$pkgdir" --optimize=1
+}

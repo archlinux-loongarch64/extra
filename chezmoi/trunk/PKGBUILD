@@ -1,0 +1,62 @@
+# Maintainer: Daurnimator <daurnimator@archlinux.org>
+# Maintainer: Caleb Maclennan <caleb@alerque.com>
+# Contributor: Tom Payne <twpayne@gmail.com>
+# Contributor:  <godeater@gmail.com>
+
+pkgname=chezmoi
+pkgver=2.15.1
+pkgrel=1
+pkgdesc="Manage your dotfiles across multiple machines"
+arch=('x86_64')
+url='https://www.chezmoi.io/'
+license=('MIT')
+makedepends=('go' 'git')
+depends=('glibc')
+checkdepends=('zip')
+options=('!lto')
+source=("${pkgname}-${pkgver}.tar.gz::https://github.com/twpayne/chezmoi/archive/v${pkgver}.tar.gz")
+sha512sums=('d2d0362ec1b566a6f6390e4673883316c3426d7ca0a2d946ae257f06cc8532805be6994abbea3ec7cb3fdc4c91174d90ceacac7e6200b9ed8b79fe1a31ed58da')
+
+prepare() {
+  cd "$pkgname-$pkgver"
+
+  go mod download
+}
+
+build() {
+  cd "$pkgname-$pkgver"
+
+  export CGO_LDFLAGS="${LDFLAGS}"
+  export CGO_CFLAGS="${CFLAGS}"
+  export CGO_CPPFLAGS="${CPPFLAGS}"
+  export CGO_CXXFLAGS="${CXXFLAGS}"
+  export GOPROXY=off
+  go build \
+    -trimpath \
+    -buildmode=pie \
+    -mod=readonly \
+    -tags noupgrade \
+    -ldflags "-X github.com/twpayne/chezmoi/cmd.DocsDir=/usr/share/doc/$pkgname \
+              -X main.version=$pkgver \
+              -X main.date=$(date -u +'%Y-%m-%dT%H:%M:%SZ' --date=@${SOURCE_DATE_EPOCH}) \
+              -extldflags ${LDFLAGS}" \
+    .
+}
+
+check() {
+  cd "$pkgname-$pkgver"
+
+  go test -v ./...
+}
+
+package() {
+  cd "$pkgname-$pkgver"
+
+  install -D "$pkgname" "$pkgdir/usr/bin/$pkgname"
+
+  install -Dm644 completions/chezmoi-completion.bash "$pkgdir/usr/share/bash-completion/completions/chezmoi"
+  install -Dm644 completions/chezmoi.fish "$pkgdir/usr/share/fish/vendor_completions.d/chezmoi.fish"
+  install -Dm644 completions/chezmoi.zsh "$pkgdir/usr/share/zsh/site-functions/_chezmoi"
+
+  install -Dm644 LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+}

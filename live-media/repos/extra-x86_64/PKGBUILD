@@ -1,0 +1,36 @@
+# Maintainer: Levente Polyak <anthraxx[at]archlinux[dot]org>
+# Contributor: Giovanni Scafora <giovanni@archlinux.org>
+# Contributor: Gilles CHAUVIN <gcnweb@gmail.com>
+
+pkgname=live-media
+pkgver=2022.02.07
+pkgrel=1
+pkgdesc='Set of C++ libraries for multimedia streaming'
+url='http://live555.com/liveMedia'
+arch=('x86_64')
+license=('LGPL')
+depends=('gcc-libs' 'openssl')
+options=('staticlibs')
+source=(https://download.videolan.org/contrib/live555/live.${pkgver}.tar.gz)
+sha256sums=('6f0c1f8a71ceb506bcbf969b02b4b0c3697b4e15daeb6dcba9872c8745ce92c6')
+sha512sums=('5ca9c675c9b719566111053c4e60d2e85e4f7f8081ec947f0e152ee583b5cbe0625e57e8a345e90829452efd6c42c7986609403b4e6e0f0c0124b73d94a35af4')
+
+build() {
+  cd live
+  export CFLAGS+=" -ffat-lto-objects"
+  export CXXFLAGS+=" -ffat-lto-objects"
+  sed -E 's|(-DSOCKLEN_T=socklen_t)|\1 -fPIC -DRTSPCLIENT_SYNCHRONOUS_INTERFACE=1|g' -i config.linux
+  ./genMakefiles linux
+  make
+}
+
+package() {
+  cd live
+  for dir in BasicUsageEnvironment groupsock liveMedia UsageEnvironment; do
+    install -Dm 644 ${dir}/*.a -t "${pkgdir}/usr/lib"
+    install -Dm 644 ${dir}/include/*.h* -t "${pkgdir}/usr/include/${dir}"
+  done
+  find testProgs -type f -perm 755 -print0|xargs -0 -I '{}' install -Dm 755 '{}' -t "${pkgdir}/usr/bin"
+}
+
+# vim: ts=2 sw=2 et:

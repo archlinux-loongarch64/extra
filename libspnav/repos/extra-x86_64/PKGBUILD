@@ -1,0 +1,26 @@
+# Maintainer: Antonio Rojas <arojas@archlinux.org>
+# Contributor: Andrea Scarpino <andrea@archlinux.org>
+# Contributor: Jan Hambrecht <jaham at gmx dot net>
+
+pkgname=libspnav
+pkgver=1.0
+pkgrel=1
+pkgdesc='Alternative to the proprietary 3Dconnexion device driver and SDK for their 3D input devices'
+arch=(x86_64)
+url='https://spacenav.sourceforge.net/'
+license=(GPL)
+depends=(libx11)
+source=(https://github.com/FreeSpacenav/libspnav/archive/v$pkgver/$pkgname-$pkgver.tar.gz)
+sha256sums=('8849b7f7826d750f6956cf8f4f53937f2359ab6da97d6c834c71d5f771212e7c')
+
+build() {
+  cd $pkgname-$pkgver
+  ./configure --prefix=/usr \
+    --disable-debug
+  make
+}
+
+package() {
+  cd $pkgname-$pkgver
+  make DESTDIR="$pkgdir" install
+}
