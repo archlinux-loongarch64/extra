@@ -4,7 +4,7 @@ pkgname=ijs
 pkgver=0.35
 pkgrel=3
 pkgdesc="a library which implements a protocol for transmission of raster page images"
-arch=('x86_64')
+arch=('x86_64' 'loongarch64')
 url="https://www.openprinting.org/download/ijs/"
 license=('GPL')
 depends=('glibc' 'sh')
@@ -14,6 +14,7 @@ md5sums=('896fdcb7a01c586ba6eb81398ea3f6e9')
 
 build() {
 	cd "$pkgname-$pkgver"
+	autoreconf -fi
 	./configure --prefix=/usr \
           --disable-static \
           --enable-shared \

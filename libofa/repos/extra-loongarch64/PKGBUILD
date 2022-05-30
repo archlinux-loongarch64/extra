@@ -5,7 +5,7 @@ pkgname=libofa
 pkgver=0.9.3
 pkgrel=9
 pkgdesc="An open-source audio fingerprint by MusicIP"
-arch=('x86_64')
+arch=('x86_64' 'loongarch64')
 url="https://github.com/tanob/libofa"
 license=('GPL2' 'custom')
 depends=('expat' 'curl' 'fftw')
@@ -33,6 +33,7 @@ prepare() {
 
 build() {
   cd ${pkgname}-${pkgver}
+  autoreconf -fi
   ./configure --prefix=/usr
   make
 }

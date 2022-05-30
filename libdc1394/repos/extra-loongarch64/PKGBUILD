@@ -4,7 +4,7 @@ pkgname=libdc1394
 pkgver=2.2.6
 pkgrel=2
 pkgdesc="High level programming interface to control IEEE 1394 based cameras"
-arch=('x86_64')
+arch=('x86_64' 'loongarch64')
 license=('LGPL')
 url="https://sourceforge.net/projects/libdc1394/"
 depends=('libraw1394' 'libusb')
@@ -14,6 +14,7 @@ sha256sums=('2b905fc9aa4eec6bdcf6a2ae5f5ba021232739f5be047dec8fe8dd6049c10fed')
 
 build() {
   cd $pkgname-$pkgver
+  autoreconf -fi
   ./configure --prefix=/usr --disable-static
   make
 }

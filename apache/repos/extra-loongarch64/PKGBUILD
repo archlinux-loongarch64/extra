@@ -6,7 +6,7 @@ pkgname=apache
 pkgver=2.4.53
 pkgrel=1
 pkgdesc='A high performance Unix-based HTTP server'
-arch=('x86_64')
+arch=('x86_64' 'loongarch64')
 url='https://www.apache.org/dist/httpd'
 license=('APACHE')
 backup=(
@@ -72,6 +72,7 @@ prepare() {
 build() {
   cd httpd-${pkgver}
 
+  autoreconf -fi
   ./configure --sbindir=/usr/bin \
       --enable-layout=Arch \
       --enable-mpms-shared=all \

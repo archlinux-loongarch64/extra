@@ -5,7 +5,7 @@
 pkgname=libb2
 pkgver=0.98.1
 pkgrel=2
-arch=(x86_64)
+arch=('x86_64' 'loongarch64')
 pkgdesc='C library providing BLAKE2b, BLAKE2s, BLAKE2bp, BLAKE2sp hash functions'
 url='https://blake2.net/'
 license=(custom:CC0)
@@ -19,7 +19,9 @@ export CC="${CC-cc} $CFLAGS"
 
 build() {
   cd "$pkgname-$pkgver"
-  ./configure --prefix=/usr --disable-static --enable-shared --disable-native --enable-fat
+  autoreconf -fi
+  #./configure --prefix=/usr --disable-static --enable-shared --disable-native --enable-fat
+  ./configure --prefix=/usr --disable-static --enable-shared --disable-native 
   make
 }
 

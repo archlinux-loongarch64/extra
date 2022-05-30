@@ -4,7 +4,7 @@ pkgname=libatasmart
 pkgver=0.19
 pkgrel=5
 pkgdesc="ATA S.M.A.R.T. Reading and Parsing Library"
-arch=('x86_64')
+arch=('x86_64' 'loongarch64')
 license=('LGPL')
 depends=('systemd-libs')
 makedepends=('systemd')
@@ -24,6 +24,7 @@ prepare() {
 
 build() {
   cd "${srcdir}/${pkgname}-${pkgver}"
+  autoreconf -fi
   ./configure --prefix=/usr \
     --sysconfdir=/etc \
     --localstatedir=/var \

@@ -14,7 +14,7 @@ _versiondir=82
 pkgrel=1
 pkgdesc='Vi Improved, a highly configurable, improved version of the vi text editor'
 url='https://www.vim.org'
-arch=('x86_64')
+arch=('x86_64' 'loongarch64')
 license=('custom:vim')
 makedepends=('glibc' 'libgcrypt' 'gpm' 'python' 'ruby' 'libxt' 'gtk3' 'lua'
              'gawk' 'tcl' 'pcre' 'zlib' 'libcanberra')
@@ -144,21 +144,21 @@ package_vim() {
   make -j1 VIMRCLOC=/etc DESTDIR="${pkgdir}" install
 
   # provided by (n)vi in core
-  rm "${pkgdir}"/usr/bin/{ex,view}
+  rm -rvf "${pkgdir}"/usr/bin/{ex,view}
 
   # delete some manpages
   find "${pkgdir}"/usr/share/man -type d -name 'man1' 2>/dev/null | \
     while read _mandir; do
     cd "${_mandir}"
-    rm -f ex.1 view.1 # provided by (n)vi
-    rm -f evim.1    # this does not make sense if we have no GUI
+    rm -rvf ex.1 view.1 # provided by (n)vi
+    rm -rvf evim.1    # this does not make sense if we have no GUI
   done
 
   # Runtime provided by runtime package
-  rm -r "${pkgdir}"/usr/share/vim
+  rm -rvf "${pkgdir}"/usr/share/vim
 
   # remove gvim.desktop as not included
-  rm "${pkgdir}"/usr/share/applications/gvim.desktop
+  rm -rvf "${pkgdir}"/usr/share/applications/gvim.desktop
 
   # license
   install -Dm 644 runtime/doc/uganda.txt \

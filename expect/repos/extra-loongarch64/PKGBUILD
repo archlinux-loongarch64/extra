@@ -5,7 +5,7 @@ pkgname=expect
 pkgver=5.45.4
 pkgrel=2
 pkgdesc='A tool for automating interactive applications'
-arch=(x86_64)
+arch=('x86_64' 'loongarch64')
 url='https://www.nist.gov/el/msid/expect.cfm'
 license=(custom)
 depends=(tcl)
@@ -14,6 +14,7 @@ sha256sums=('49a7da83b0bdd9f46d04a04deec19c7767bb9a323e40c4781f89caf760b92c34')
 
 build() {
   cd expect${pkgver}
+  autoreconf -fi
   ./configure --prefix=/usr --mandir=/usr/share/man 
   make
 }

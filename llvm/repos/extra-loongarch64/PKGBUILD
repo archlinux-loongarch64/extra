@@ -5,7 +5,7 @@ pkgname=('llvm' 'llvm-libs' 'llvm-ocaml')
 pkgver=13.0.1
 pkgrel=2
 _ocaml_ver=4.13.1
-arch=('x86_64')
+arch=('x86_64' 'loongarch64')
 url="https://llvm.org/"
 license=('custom:Apache 2.0 with LLVM Exception')
 makedepends=('cmake' 'ninja' 'libffi' 'libedit' 'ncurses' 'libxml2'
@@ -19,14 +19,16 @@ source=($_source_base/$pkgname-$pkgver.src.tar.xz{,.sig}
         don-t-move-DBG_VALUE-instructions.patch
         no-strict-aliasing-DwarfCompileUnit.patch
         disable-bswap-for-spir.patch
-        llvm-config.h)
+        llvm-config.h
+        add-loongarch64-support-llvm-13.patch)
 sha256sums=('ec6b80d82c384acad2dc192903a6cf2cdbaffb889b84bfb98da9d71e630fc834'
             'SKIP'
             'a7e902a7612d0fdabe436a917468b043cc296bc89d8954bfc3126f737beb9ac4'
             'f7d69f84241416398fdb3df8bb44f9fae3c49d89889c7ffa3b37aa2e9d78f708'
             'd1eff24508e35aae6c26a943dbaa3ef5acb60a145b008fd1ef9ac6f6c4faa662'
             'af163392fbc19d65d11ab4b1510a2eae39b417d6228023b3ba5395b138bb41f5'
-            '597dc5968c695bbdbb0eac9e8eb5117fcd2773bc91edf5ec103ecffffab8bc48')
+            '597dc5968c695bbdbb0eac9e8eb5117fcd2773bc91edf5ec103ecffffab8bc48'
+            'SKIP')
 validpgpkeys+=('B6C8F98282B944E3B0D5C2530FC3042E345AD05D') # Hans Wennborg <hans@chromium.org>
 validpgpkeys+=('474E22316ABF4785A88C6E8EA2C794A986419D8A') # Tom Stellard <tstellar@redhat.com>
 
@@ -47,6 +49,9 @@ prepare() {
 
   # Fix an ISPC build failure (https://github.com/ispc/ispc/issues/2189)
   patch -Np2 -i ../disable-bswap-for-spir.patch
+
+  # add LoongArch support
+  patch -Np1 -i $srcdir/add-loongarch64-support-llvm-13.patch
 }
 
 build() {
@@ -68,7 +73,7 @@ build() {
     -DLLVM_ENABLE_DOXYGEN=OFF \
     -DSPHINX_WARNINGS_AS_ERRORS=OFF \
     -DLLVM_BINUTILS_INCDIR=/usr/include
-  ninja all ocaml_doc
+  ninja all
 }
 
 check() {
@@ -97,11 +102,17 @@ package_llvm() {
   mv -f "$pkgdir"/usr/lib/LLVMgold.so "$srcdir"
 
   # OCaml bindings go to a separate package
-  rm -rf "$srcdir"/ocaml.{lib,doc}
-  mv "$pkgdir/usr/lib/ocaml" "$srcdir/ocaml.lib"
-  mv "$pkgdir/usr/share/doc/$pkgname/ocaml-html" "$srcdir/ocaml.doc"
+#  rm -rf "$srcdir"/ocaml.{lib,doc}
+#  mv "$pkgdir/usr/lib/ocaml" "$srcdir/ocaml.lib"
+#  mv "$pkgdir/usr/share/doc/$pkgname/ocaml-html" "$srcdir/ocaml.doc"
 
   if [[ $CARCH == x86_64 ]]; then
+    # Needed for multilib (https://bugs.archlinux.org/task/29951)
+    # Header stub is taken from Fedora
+    mv "$pkgdir/usr/include/llvm/Config/llvm-config"{,-64}.h
+    cp "$srcdir/llvm-config.h" "$pkgdir/usr/include/llvm/Config/llvm-config.h"
+  fi
+  if [[ $CARCH == loongarch64 ]]; then
     # Needed for multilib (https://bugs.archlinux.org/task/29951)
     # Header stub is taken from Fedora
     mv "$pkgdir/usr/include/llvm/Config/llvm-config"{,-64}.h

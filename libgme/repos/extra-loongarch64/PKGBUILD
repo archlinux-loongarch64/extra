@@ -7,7 +7,7 @@ pkgrel=1
 pkgdesc="Video game music file emulation/playback library"
 url="https://bitbucket.org/mpyne/game-music-emu"
 license=('LGPL')
-arch=('x86_64')
+arch=('x86_64' 'loongarch64')
 depends=('gcc-libs')
 makedepends=('cmake')
 source=("https://bitbucket.org/mpyne/game-music-emu/downloads/game-music-emu-$pkgver.tar.xz")
@@ -19,7 +19,8 @@ build() {
   mkdir build
   cd build
 
-  cmake .. -DCMAKE_INSTALL_PREFIX=/usr
+  cmake .. -DCMAKE_INSTALL_PREFIX=/usr \
+	-DENABLE_UBSAN=OFF
   make
 }
 

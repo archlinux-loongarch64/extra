@@ -1,0 +1,37 @@
+diff --git a/src/corelib/global/qprocessordetection.h b/src/corelib/global/qprocessordetection.h
+index 72cc0b4a..126cfba0 100644
+--- a/src/corelib/global/qprocessordetection.h
++++ b/src/corelib/global/qprocessordetection.h
+@@ -79,6 +79,11 @@
+ #  define Q_LITTLE_ENDIAN 1234
+ #endif
+ 
++#if defined(__loongarch64)
++#    define Q_PROCESSOR_LOONGARCH_64
++#    define Q_PROCESSOR_WORDSIZE 8
++#endif
++
+ /*
+     Alpha family, no revisions or variants
+ 
+diff --git a/src/corelib/plugin/qelfparser_p.cpp b/src/corelib/plugin/qelfparser_p.cpp
+index c6ccda92..039fea4a 100644
+--- a/src/corelib/plugin/qelfparser_p.cpp
++++ b/src/corelib/plugin/qelfparser_p.cpp
+@@ -145,6 +145,8 @@ struct ElfMachineCheck
+             EM_ARM
+ #elif defined(Q_PROCESSOR_ARM_64)
+             EM_AARCH64
++#elif defined(Q_PROCESSOR_LOONGARCH_64)
++            EM_LOONGARCH
+ #elif defined(Q_PROCESSOR_BLACKFIN)
+             EM_BLACKFIN
+ #elif defined(Q_PROCESSOR_IA64)
+@@ -409,6 +411,7 @@ Q_DECL_UNUSED Q_DECL_COLD_FUNCTION static QDebug &operator<<(QDebug &d, ElfHeade
+     case EM_NONE:       d << ", no machine"; break;
+     case EM_ARM:        d << ", ARM"; break;
+     case EM_AARCH64:    d << ", AArch64"; break;
++    case EM_LOONGARCH:    d << ", LoongArch64"; break;
+     case EM_BLACKFIN:   d << ", Blackfin"; break;
+     case EM_IA_64:      d << ", IA-64"; break;
+     case EM_MIPS:       d << ", MIPS"; break;
